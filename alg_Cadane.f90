@@ -38,8 +38,6 @@ module Task
         x2=1
         y2=1
 
-        
-        
 
         call mpi_comm_size(MPI_COMM_WORLD, mpiSize, mpiErr)
         call mpi_comm_rank(MPI_COMM_WORLD, mpiRank, mpiErr)
@@ -47,8 +45,7 @@ module Task
          
         L=mpiRank+1        
 
-        do while (L<=n)
-          
+        do while (L<=n) 
         
             current_column = B(:, L)       
             do R=L,n
