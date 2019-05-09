@@ -1,4 +1,6 @@
 module Task
+
+    use mpi
     implicit none
     contains
 
@@ -9,8 +11,10 @@ module Task
 
         integer(4) :: n, L, R, Up, Down, m, tmp
         real(8), allocatable :: current_column(:), B(:,:)
-        real(8) :: current_sum, max_sum
+        real(8) :: current_sum, max_sum, max_sum_for_all
         logical :: transpos
+
+        integer(4) :: mpiErr,mpiRank, mpiSize, max_mpiRank, test_max_mpiRank
 
         m = size(A, dim=1) 
         n = size(A, dim=2) 
@@ -34,10 +38,18 @@ module Task
         x2=1
         y2=1
 
-        call omp_set_num_threads(1)
+        
+        
+
+        call mpi_comm_size(MPI_COMM_WORLD, mpiSize, mpiErr)
+        call mpi_comm_rank(MPI_COMM_WORLD, mpiRank, mpiErr)
+     
+         
+        L=mpiRank+1        
+
+        do while (L<=n)
           
-                
-        do L=1, n
+        
             current_column = B(:, L)       
             do R=L,n
  
@@ -54,10 +66,31 @@ module Task
                     y1 = L
                     y2 = R
                 endif
-        
+       
             end do
-        end do
 
+            L=L+mpiSize
+ 
+        end do
+  
+
+        call mpi_reduce(max_sum, max_sum_for_all, 1, MPI_INTEGER4, MPI_MAX, 0, MPI_COMM_WORLD, mpiErr)  
+        call mpi_bcast(max_sum_for_all, 1, MPI_INTEGER4, 0, MPI_COMM_WORLD, mpiErr) 
+
+        test_max_mpiRank = 0
+        if (max_sum_for_all == max_sum) then 
+           test_max_mpiRank = mpiRank
+        end if
+  
+        call mpi_reduce(test_max_mpiRank, max_mpiRank, 1, MPI_INTEGER4, MPI_SUM, 0, MPI_COMM_WORLD, mpiErr)
+        call mpi_bcast(max_mpiRank, 1, MPI_INTEGER4, 0, MPI_COMM_WORLD, mpiErr)          
+
+        call mpi_bcast(x1, 1, MPI_INTEGER4, max_mpiRank, MPI_COMM_WORLD, mpiErr)
+        call mpi_bcast(x2, 1, MPI_INTEGER4, max_mpiRank, MPI_COMM_WORLD, mpiErr)
+        call mpi_bcast(y1, 1, MPI_INTEGER4, max_mpiRank, MPI_COMM_WORLD, mpiErr)
+        call mpi_bcast(y2, 1, MPI_INTEGER4, max_mpiRank, MPI_COMM_WORLD, mpiErr)
+
+        
         deallocate(current_column)
 
 
