@@ -79,7 +79,7 @@ module Task
            test_max_mpiRank = mpiRank
         end if
   
-        call mpi_reduce(test_max_mpiRank, max_mpiRank, 1, MPI_INTEGER4, MPI_SUM, 0, MPI_COMM_WORLD, mpiErr)
+        call mpi_reduce(test_max_mpiRank, max_mpiRank, 1, MPI_INTEGER4, MPI_MAX, 0, MPI_COMM_WORLD, mpiErr)
         call mpi_bcast(max_mpiRank, 1, MPI_INTEGER4, 0, MPI_COMM_WORLD, mpiErr)          
 
         call mpi_bcast(x1, 1, MPI_INTEGER4, max_mpiRank, MPI_COMM_WORLD, mpiErr)
