@@ -71,8 +71,8 @@ module Task
         end do
   
 
-        call mpi_reduce(max_sum, max_sum_for_all, 1, MPI_INTEGER4, MPI_MAX, 0, MPI_COMM_WORLD, mpiErr)  
-        call mpi_bcast(max_sum_for_all, 1, MPI_INTEGER4, 0, MPI_COMM_WORLD, mpiErr) 
+        call mpi_reduce(max_sum, max_sum_for_all, 1, MPI_REAL8, MPI_MAX, 0, MPI_COMM_WORLD, mpiErr)  
+        call mpi_bcast(max_sum_for_all, 1, MPI_REAL8, 0, MPI_COMM_WORLD, mpiErr) 
 
         test_max_mpiRank = 0
         if (max_sum_for_all == max_sum) then 
